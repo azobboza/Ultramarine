@@ -42,9 +42,11 @@
     }
   },
   "dependencies": {
+    "d3": "^5.9.2",
     "materialize-css": "^1.0.0-rc.2",
     "prop-types": "^15.7.2",
     "react": "^16.8.5",
+    "react-d3-tree": "^1.12.4",
     "react-dom": "^16.8.5",
     "react-hot-loader": "^4.8.0"
   },
