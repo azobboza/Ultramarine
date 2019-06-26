@@ -18,10 +18,11 @@ namespace Ultramarine.Workspaces
         IProjectItemModel CreateProjectItem(string path, byte[] content, bool overwrite);
         IProjectItemModel CreateProjectItem(string path, object content, bool overwrite);
         IEnumerable<IProjectModel> GetProjects(string expression);
-        IEnumerable<IProjectItemModel> GetProjectItems(string expression);
-        IEnumerable<IProjectItemModel> GetProjectItems(string expression, string dependentUpon);
+        IProjectItemModel GetProjectItem(string path);
+        IEnumerable<IProjectItemModel> GetProjectItems(string expression, string propertyName = "FileName");
+        IEnumerable<IProjectItemModel> GetProjectItems(string expression, string dependentUpon, string propertyName = "FileName");
         string ProcessTextTemplate(string t4File, object input, Dictionary<string, object> parameters);
-        
+        IWorkspaceModel GetWorkspace();
         bool Build(string configuration);
     }
 }

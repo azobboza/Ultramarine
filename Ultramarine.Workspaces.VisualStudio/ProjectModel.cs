@@ -1,13 +1,10 @@
 ﻿using EnvDTE;
-using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextTemplating;
-using Microsoft.VisualStudio.TextTemplating.VSHost;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Ultramarine.QueryLanguage;
 using Ultramarine.QueryLanguage.Comparers;
 using Ultramarine.Workspaces.VisualStudio.T4;
@@ -21,7 +18,7 @@ namespace Ultramarine.Workspaces.VisualStudio
         {
             FilePath = project.Properties.Item("FullPath").Value.ToString();
             Name = project.Name;
-            Language = project.CodeModel.Language;
+            Language = project.CodeModel == null ? null : project.CodeModel.Language;
             ProjectItems = MapProjectItems(project.ProjectItems);
             _project = project;
         }
@@ -107,8 +104,6 @@ namespace Ultramarine.Workspaces.VisualStudio
             return CreateProjectItem(path, contentStream, overwrite);
         }
 
-
-
         public IEnumerable<IProjectModel> GetProjects(string projectNameExpression)
         {
             var projects = Dte.Instance.GetProjects(projectNameExpression);
@@ -143,26 +138,30 @@ namespace Ultramarine.Workspaces.VisualStudio
             return projectItem;
         }
 
-        public IEnumerable<IProjectItemModel> GetProjectItems(string expression)
+        
+        public IEnumerable<IProjectItemModel> GetProjectItems(string expression, string propertyName = "FileName")
         {
             var result = new List<IProjectItemModel>();
             foreach (var item in ProjectItems)
             {
-                var condition = new ConditionCompiler(expression, item.Name);
+                var condition = new ConditionCompiler(expression, item.GetProperty(propertyName));
                 if (condition.Execute())
                     result.Add(item);
 
                 var subItems = item.GetProjectItems(expression);
                 if (subItems != null)
+                {
+                    subItems.Remove(item);
                     result.AddRange(subItems);
+                }
             }
             return result;
         }
 
-        public IEnumerable<IProjectItemModel> GetProjectItems(string expression, string dependentUpon)
+        public IEnumerable<IProjectItemModel> GetProjectItems(string expression, string dependentUpon, string propertyName = "FileName")
         {
             var result = new List<IProjectItemModel>();
-            var dependentProjectItems = GetProjectItems($"$this equals {dependentUpon}");
+            var dependentProjectItems = GetProjectItems($"$this equals {dependentUpon}", propertyName);
             foreach (var dpi in dependentProjectItems)
             {
                 var items = dpi.GetProjectItems(expression);
@@ -259,6 +258,15 @@ namespace Ultramarine.Workspaces.VisualStudio
             return result;
         }
 
+        public IProjectItemModel GetProjectItem(string path)
+        {
+            return GetProjectItems($"$this equals '{path}'", "FullPath").FirstOrDefault();
+        }
+
+        public IWorkspaceModel GetWorkspace()
+        {
+            return new WorkspaceModel(Dte.Instance.Host.Solution);
+        }
         
     }
 

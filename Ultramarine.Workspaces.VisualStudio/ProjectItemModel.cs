@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using EnvDTE80;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Ultramarine.QueryLanguage;
@@ -8,14 +9,15 @@ using Ultramarine.Workspaces.VisualStudio.CodeElements;
 
 namespace Ultramarine.Workspaces.VisualStudio
 {
+    [Serializable]
     public class ProjectItemModel : IProjectItemModel
     {
         private ProjectItem _projectItem;
         public ProjectItemModel(ProjectItem projectItem)
         {
             Name = projectItem.Name;
-            FilePath = projectItem.Properties.Item("FullPath").Value.ToString();
-            Language = projectItem.FileCodeModel == null ? null : projectItem.FileCodeModel.Language;
+            FilePath = GetFilePath(projectItem);
+            Language = GetLanguage(projectItem);
             ProjectItems = MapProjectItems(projectItem.ProjectItems);
 
             _projectItem = projectItem;
@@ -24,6 +26,10 @@ namespace Ultramarine.Workspaces.VisualStudio
         public string Name { get; set; }
         public string Language { get; set; }
         public List<IProjectItemModel> ProjectItems { get; set; }
+        public IProjectModel Project
+        {
+            get { return new ProjectModel(_projectItem.ContainingProject); }
+        }
 
         public List<IProjectItemModel> GetProjectItems(string expression)
         {
@@ -44,8 +50,10 @@ namespace Ultramarine.Workspaces.VisualStudio
         public List<ICodeElementModel> GetCodeElements(string expression)
         {
             var result = new List<CodeElement>();
-            if (_projectItem.FileCodeModel == null)
+            var codeModel = GetCodeModel(_projectItem);
+            if (codeModel == null)
                 return null;
+
             foreach (CodeElement codeElement in _projectItem.FileCodeModel.CodeElements)
             {
                 if (codeElement.IsCodeType)
@@ -61,6 +69,7 @@ namespace Ultramarine.Workspaces.VisualStudio
                     result.AddRange(GetInnerCodeElements(codeElement, expression));
                 }
             }
+
             return result.Select<CodeElement, ICodeElementModel>(c => new CodeElementModel(c)).ToList();
         }
 
@@ -145,7 +154,10 @@ namespace Ultramarine.Workspaces.VisualStudio
 
         private List<IProjectItemModel> MapProjectItems(ProjectItems projectItems)
         {
+
             var result = new List<IProjectItemModel>();
+            if (projectItems == null)
+                return result;
 
             for (int i = 1; i < projectItems.Count; i++)
             {
@@ -154,6 +166,51 @@ namespace Ultramarine.Workspaces.VisualStudio
 
             return result;
         }
+
+        private string GetFilePath(ProjectItem projectItem)
+        {
+            try
+            {
+                return projectItem.Properties.Item("FullPath").Value.ToString();
+            }
+            catch
+            {
+                return projectItem.Properties.Item("Path").Value.ToString();
+            }
+        }
+
+        private static string GetLanguage(ProjectItem projectItem)
+        {
+            var codeModel = GetCodeModel(projectItem);
+            return codeModel == null ? null : codeModel.Language;
+        }
+
+        private static FileCodeModel GetCodeModel(ProjectItem projectItem)
+        {
+            try
+            {
+                return projectItem.FileCodeModel;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public string GetProperty(string propertyName = "FileName")
+        {
+            try
+            {
+                return _projectItem.Properties.Item(propertyName).Value.ToString();
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+
+
     }
 
 }

@@ -1,30 +1,46 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import { isEqual } from 'underscore'
 import Generator from './tasks/generator'
 import Toolbox from './task-toolbox'
 import { TaskTypes } from './tasks/task-builder'
-import genConfig from '../../tests/samples/repository.gen.json'
 
 class Configuration extends Component {
   constructor(props) {
     super(props)
+    const { settings } = this.props
     this.state = {
-      configuration: genConfig,
+      configuration: settings,
+      tasks: TaskTypes
+    }
+  }
+
+  static getDerivedStateFromProps(props, state) {
+    const { settings } = props
+    const { configuration } = state
+
+    if (isEqual(settings, configuration)) return null
+    return {
+      configuration: settings,
       tasks: TaskTypes
     }
   }
 
   handleTaskClicked = () => {
-    const { configuration } = this.state
+    // const { configuration } = this.state
   }
 
   handleTaskLanded = (landingZone, parentName, taskType) => {
-    debugger
     const { configuration } = this.state
     const task = this.findTask(configuration, parentName)
-    task.tasks.push({ [taskType]: { name: '', description: '' } })
+    task.tasks.push({
+      [taskType]: { name: '', description: '', editable: true }
+    })
 
     this.setState({ configuration })
   }
+
+  handleTaskChange = () => {}
 
   findTask = (task, parentName) => {
     if (task.name.toLowerCase() === parentName.toLowerCase()) return task
@@ -42,18 +58,33 @@ class Configuration extends Component {
     return (
       <div className="container">
         <div className="row">
-          <div className="col s7 m8 offset-l1 l7 offset-xl2 xl7">
+          <div className="col s10 m10 l8 xl9">
             <Generator
               {...configuration}
               onTaskLanded={this.handleTaskLanded}
+              onChange={this.handleTaskChange}
             />
           </div>
-          <div className="col s5 m4 l4 xl3">
-            <Toolbox tasks={tasks} onTaskLanded={this.handleTaskLanded} />
+          <div className="col s2 m2 l4 xl3">
+            <Toolbox
+              tasks={tasks}
+              onTaskLanded={this.handleTaskLanded}
+              onTaskClicked={this.handleTaskClicked}
+            />
           </div>
         </div>
       </div>
     )
+  }
+}
+
+Configuration.propTypes = {
+  settings: PropTypes.shape({})
+}
+Configuration.defaultProps = {
+  settings: {
+    name: 'generatorConfig',
+    tasks: []
   }
 }
 

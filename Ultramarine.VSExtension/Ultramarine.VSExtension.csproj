@@ -356,13 +356,21 @@
       <Project>{89047a1d-c0f6-4fcb-a77d-798a30c424ea}</Project>
       <Name>Ultramarine.Generators.Serialization</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Ultramarine.Generators.Tasks.Complex\Ultramarine.Generators.Tasks.Complex.csproj">
+      <Project>{40b827ec-852c-4820-b7d1-7045d622c1dd}</Project>
+      <Name>Ultramarine.Generators.Tasks.Complex</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Ultramarine.Generators.Tasks.Library\Ultramarine.Generators.Tasks.Library.csproj">
       <Project>{4CD4FF45-5D29-459A-BB2E-CD760A95AAF5}</Project>
       <Name>Ultramarine.Generators.Tasks.Library</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
     <ProjectReference Include="..\Ultramarine.Generators.Tasks\Ultramarine.Generators.Tasks.csproj">
       <Project>{82d1ce89-82ef-47ff-a702-f67c3e030de4}</Project>
       <Name>Ultramarine.Generators.Tasks</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
     <ProjectReference Include="..\Ultramarine.ProjectGenerator.Json\Ultramarine.ProjectGenerator.Json.csproj">
       <Project>{D5F07703-6192-4C4E-8B39-4D87DF054C0D}</Project>

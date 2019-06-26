@@ -1,15 +1,32 @@
 ﻿using System.Collections.Generic;
 using System.Composition;
+using System.Xml.Serialization;
 using Ultramarine.Generators.Tasks.Library.Contracts;
 using Ultramarine.Generators.Tasks.Library.Extensions;
 
 namespace Ultramarine.Generators.Tasks
 {
+    /// <summary>
+    /// Sets a variable in a local scope (a parent of a current task)
+    /// </summary>
     [Export(typeof(Task))]
     public class SetVariable : Task
     {
-        public string VariableName { get; set; }
+        private string _variableName;
+
+        /// <summary>
+        /// Name of the variable to set
+        /// <para>This property supports Variables</para>
+        /// </summary>
+        public string VariableName { get => TryGetSettingValue(_variableName) as string; set => _variableName = value; }
+        /// <summary>
+        /// Value of the variable to set
+        /// </summary>
+        [XmlIgnore]
         public object VariableValue { get; set; }
+        /// <summary>
+        /// Name of the parent task to set a variable on
+        /// </summary>
         public string ParentTask { get; set; }
 
         protected override ValidationResult Validate()
